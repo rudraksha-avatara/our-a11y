@@ -1,0 +1,33 @@
+import type { A11yConfig, EventMap, PreferenceKey, Preferences, ScanSummary } from '../types';
+export declare class OurA11yEngine {
+    private initialized;
+    private config?;
+    private store?;
+    private widget?;
+    private features?;
+    private remediation?;
+    private observer?;
+    private scanner?;
+    private scanResults;
+    private readonly emitter;
+    private logger;
+    private panelOpen;
+    init(programmatic?: Partial<A11yConfig>): Promise<OurA11yEngine>;
+    destroy(): void;
+    openPanel(): void;
+    closePanel(): void;
+    togglePanel(): void;
+    setPreference<K extends PreferenceKey>(key: K, value: Preferences[K]): void;
+    getPreference<K extends PreferenceKey>(key: K): Preferences[K] | undefined;
+    getPreferences(): Preferences;
+    resetPreferences(): void;
+    scanPage(): ScanSummary;
+    getScanResults(): ScanSummary;
+    on: <K extends keyof EventMap>(event: K, handler: (payload: EventMap[K]) => void) => void;
+    off: <K extends keyof EventMap>(event: K, handler: (payload: EventMap[K]) => void) => void;
+    get version(): string;
+    private handleDomChange;
+    private applyPreset;
+    private humanizeKey;
+    private emitAnalytics;
+}
