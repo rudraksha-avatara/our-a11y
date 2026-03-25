@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OurA11y Demo</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Georgia, serif;
+        color: #172033;
+        background: linear-gradient(180deg, #f7fafc, #edf2f7);
+      }
+
+      .wrap {
+        max-width: 820px;
+        margin: 0 auto;
+        padding: 40px 20px 120px;
+      }
+
+      .card {
+        background: #fff;
+        border: 1px solid #d8dee7;
+        border-radius: 18px;
+        padding: 24px;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .link-row a {
+        margin-right: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <div class="card">
+        <h1>OurA11y live demo</h1>
+        <p>
+          This page loads the production IIFE bundle from the versioned Pages path. Open the
+          widget, change preferences, and test the diagnostics flow.
+        </p>
+
+        <div class="toolbar">
+          <button><img src="https://via.placeholder.com/20" alt="Add item" /></button>
+          <button aria-label="Open support">?</button>
+          <input type="email" placeholder="Email address" />
+        </div>
+
+        <p class="link-row">
+          <a href="https://example.com">Read more</a>
+          <a href="https://example.com/docs">Documentation</a>
+        </p>
+
+        <h3>Widget script</h3>
+        <pre><code>&lt;script src="https://a11y.itisuniqueofficial.com/a11y/v1/our-a11y.iife.js" defer&gt;&lt;/script&gt;</code></pre>
+      </div>
+    </main>
+
+    <script>
+      window.OUR_A11Y_CONFIG = {
+        features: {
+          diagnostics: true,
+          readingGuide: true,
+          remediation: true
+        }
+      };
+    </script>
+    <script src="/a11y/v1/our-a11y.iife.js" defer></script>
+  </body>
+  </html>

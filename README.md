@@ -224,7 +224,7 @@ npm run dev
 ## Documentation, demo, and distribution links
 
 - Documentation: `https://a11y.itisuniqueofficial.com`
-- Demo site: `https://a11y.itisuniqueofficial.com`
+- Demo site: `https://a11y.itisuniqueofficial.com/demo.html`
 - npm package: `https://www.npmjs.com/package/@rudraksha-avatara/our-a11y`
 - CDN example: `https://a11y.itisuniqueofficial.com/a11y/v1/our-a11y.iife.js`
 - Releases: `https://github.com/rudraksha-avatara/our-a11y/releases`
