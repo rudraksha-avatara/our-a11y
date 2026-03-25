@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OurA11y SPA Example</title>
+    <style>
+      body {
+        font-family: Verdana, sans-serif;
+        margin: 0;
+        background: #fffdf8;
+        color: #1f2937;
+      }
+      .shell {
+        max-width: 820px;
+        margin: 0 auto;
+        padding: 36px 20px 120px;
+      }
+      nav button {
+        margin-right: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <h1>SPA navigation example</h1>
+      <nav>
+        <button id="home-btn">Home</button>
+        <button id="shop-btn">Shop</button>
+      </nav>
+      <section id="app"></section>
+    </div>
+    <script type="module">
+      import OurA11y from '/src/index.ts';
+
+      const app = document.getElementById('app');
+
+      function render(route) {
+        if (!app) return;
+        if (route === 'shop') {
+          app.innerHTML = `
+            <h2>Shop</h2>
+            <p>Mutation-heavy route update.</p>
+            <button><img src="https://via.placeholder.com/20" alt="Add to cart" /></button>
+            <a href="#"></a>
+          `;
+        } else {
+          app.innerHTML = `
+            <h2>Home</h2>
+            <p>Try toggling preferences and switching routes.</p>
+            <input type="text" placeholder="Search products" />
+          `;
+        }
+      }
+
+      document.getElementById('home-btn')?.addEventListener('click', () => {
+        history.pushState({}, '', '#home');
+        render('home');
+      });
+
+      document.getElementById('shop-btn')?.addEventListener('click', () => {
+        history.pushState({}, '', '#shop');
+        render('shop');
+      });
+
+      render('home');
+      OurA11y.init({ autoInit: false, features: { diagnostics: true } });
+    </script>
+  </body>
+  </html>

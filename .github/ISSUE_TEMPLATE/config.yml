@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security report
+    url: mailto:security@a11y.itisuniqueofficial.com
+    about: Report vulnerabilities privately instead of opening a public issue.
+  - name: Documentation
+    url: https://a11y.itisuniqueofficial.com
+    about: Read the docs before filing a support issue.

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OurA11y Inline Config</title>
+    <style>
+      body {
+        font-family: "Trebuchet MS", sans-serif;
+        margin: 0;
+        background: #f6f7fb;
+        color: #102033;
+      }
+      article {
+        max-width: 760px;
+        margin: 40px auto;
+        padding: 24px;
+        background: white;
+        border: 1px solid #d8dee7;
+        border-radius: 14px;
+      }
+    </style>
+    <script>
+      window.OUR_A11Y_CONFIG = {
+        position: 'bottom-left',
+        features: {
+          diagnostics: true,
+          presets: true,
+          readingGuide: true
+        },
+        ui: {
+          title: 'Accessibility tools',
+          accentColor: '#0f766e'
+        }
+      };
+    </script>
+  </head>
+  <body>
+    <article>
+      <h1>Inline config example</h1>
+      <p>The widget reads config from <code>window.OUR_A11Y_CONFIG</code> before auto-init.</p>
+      <iframe src="about:blank"></iframe>
+    </article>
+    <script type="module" src="/src/index.ts"></script>
+  </body>
+  </html>

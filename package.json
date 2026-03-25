@@ -1,0 +1,71 @@
+{
+  "name": "@rudraksha-avatara/our-a11y",
+  "version": "0.1.0",
+  "description": "A lightweight embeddable accessibility enhancement library that adds accessible user controls, usability improvements, and optional diagnostics to websites with a single script.",
+  "author": "Rudraksha Avatara <support@a11y.itisuniqueofficial.com>",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/our-a11y.es.js",
+  "module": "./dist/our-a11y.es.js",
+  "types": "./dist/types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rudraksha-avatara/our-a11y.git"
+  },
+  "homepage": "https://github.com/rudraksha-avatara/our-a11y#readme",
+  "bugs": {
+    "url": "https://github.com/rudraksha-avatara/our-a11y/issues"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/rudraksha-avatara"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/our-a11y.es.js",
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/our-a11y.es.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && tsc -p tsconfig.build.json --emitDeclarationOnly --outDir dist/types",
+    "preview": "vite preview",
+    "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "validate": "npm run typecheck && npm test && npm run build"
+  },
+  "keywords": [
+    "accessibility",
+    "a11y",
+    "embeddable",
+    "frontend",
+    "javascript",
+    "library",
+    "typescript",
+    "usability",
+    "wcag",
+    "web-performance",
+    "widget"
+  ],
+  "devDependencies": {
+    "jsdom": "^26.1.0",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.3",
+    "vitest": "^3.2.4"
+  }
+}

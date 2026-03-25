@@ -1,0 +1,12 @@
+{
+  "position": "bottom-right",
+  "features": {
+    "diagnostics": true,
+    "presets": true,
+    "readingGuide": true
+  },
+  "ui": {
+    "title": "Site accessibility",
+    "accentColor": "#1d4ed8"
+  }
+}

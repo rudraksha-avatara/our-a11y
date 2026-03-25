@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OurA11y Remote Config</title>
+    <style>
+      body {
+        font-family: Tahoma, sans-serif;
+        margin: 0;
+        background: linear-gradient(180deg, #f7fafc, #edf2f7);
+      }
+      main {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 48px 20px 96px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Remote config simulation</h1>
+      <p>This example loads remote config from a static JSON file through the runtime adapter.</p>
+    </main>
+    <script type="module">
+      import OurA11y from '/src/index.ts';
+
+      OurA11y.init({
+        autoInit: false,
+        remoteConfig: {
+          url: '/examples/remote-config/config.json'
+        },
+        token: 'demo-site-token'
+      });
+    </script>
+  </body>
+  </html>
