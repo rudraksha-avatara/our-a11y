@@ -41,7 +41,12 @@
           app.innerHTML = `
             <h2>Shop</h2>
             <p>Mutation-heavy route update.</p>
-            <button><img src="https://via.placeholder.com/20" alt="Add to cart" /></button>
+            <button aria-label="Add to cart">
+              <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                <circle cx="10" cy="10" r="9" fill="#0f5bd8"></circle>
+                <path d="M10 5v10M5 10h10" stroke="#ffffff" stroke-width="2" stroke-linecap="round"></path>
+              </svg>
+            </button>
             <a href="#"></a>
           `;
         } else {

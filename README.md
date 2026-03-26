@@ -1,10 +1,9 @@
 # OurA11y
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/rudraksha-avatara/our-a11y/ci.yml?branch=main&label=build)](https://github.com/rudraksha-avatara/our-a11y/actions)
-[![npm version](https://img.shields.io/npm/v/%40rudraksha-avatara%2Four-a11y)](https://www.npmjs.com/package/@rudraksha-avatara/our-a11y)
 [![License](https://img.shields.io/github/license/rudraksha-avatara/our-a11y)](https://github.com/rudraksha-avatara/our-a11y/blob/main/LICENSE)
-[![Bundle size](https://img.shields.io/bundlephobia/minzip/%40rudraksha-avatara%2Four-a11y)](https://bundlephobia.com/package/@rudraksha-avatara/our-a11y)
-[![Downloads](https://img.shields.io/npm/dm/%40rudraksha-avatara%2Four-a11y)](https://www.npmjs.com/package/@rudraksha-avatara/our-a11y)
+[![Release](https://img.shields.io/github/v/release/rudraksha-avatara/our-a11y?display_name=tag)](https://github.com/rudraksha-avatara/our-a11y/releases)
+[![Deploy](https://img.shields.io/badge/deploy-cloudflare%20pages-f38020)](https://a11y.itisuniqueofficial.com)
 [![Accessibility support](https://img.shields.io/badge/accessibility-enhancement%20library-0f766e)](https://a11y.itisuniqueofficial.com)
 
 OurA11y is a lightweight embeddable accessibility enhancement library that adds accessible user controls, usability improvements, and optional diagnostics to websites with a single script.
@@ -46,17 +45,19 @@ Many sites need a low-friction way to offer user-facing accessibility controls a
 
 ## Installation
 
-### npm
-
-```bash
-npm install @rudraksha-avatara/our-a11y
-```
-
 ### Script tag
 
 ```html
 <script src="https://a11y.itisuniqueofficial.com/a11y/v1/our-a11y.iife.js" defer></script>
 ```
+
+### Self-host from repository build
+
+Use the checked-in files in `dist/a11y/v1/` if you want to host the library on your own infrastructure.
+
+### npm package status
+
+The package metadata is ready for future npm publishing, but the package is not currently published on npm. Use the hosted script or self-host the built assets from this repository.
 
 ## Quick start
 
@@ -71,7 +72,7 @@ npm install @rudraksha-avatara/our-a11y
 ```html
 <script>
   window.OUR_A11Y_CONFIG = {
-    token: 'your-site-token',
+    token: 'site_live_token',
     position: 'bottom-right',
     features: {
       diagnostics: true,
@@ -88,19 +89,21 @@ npm install @rudraksha-avatara/our-a11y
 
 ### Programmatic API usage
 
-```ts
-import OurA11y from '@rudraksha-avatara/our-a11y';
+```html
+<script type="module">
+  import OurA11y from 'https://a11y.itisuniqueofficial.com/a11y/v1/our-a11y.es.js';
 
-await OurA11y.init({
-  autoInit: false,
-  token: 'your-site-token',
-  features: {
-    diagnostics: true,
-    remediation: true
-  }
-});
+  await OurA11y.init({
+    autoInit: false,
+    token: 'site_live_token',
+    features: {
+      diagnostics: true,
+      remediation: true
+    }
+  });
 
-OurA11y.openPanel();
+  OurA11y.openPanel();
+</script>
 ```
 
 ## Examples
@@ -225,7 +228,7 @@ npm run dev
 
 - Documentation: `https://a11y.itisuniqueofficial.com`
 - Demo site: `https://a11y.itisuniqueofficial.com/demo.html`
-- npm package: `https://www.npmjs.com/package/@rudraksha-avatara/our-a11y`
+- Source repository: `https://github.com/rudraksha-avatara/our-a11y`
 - CDN example: `https://a11y.itisuniqueofficial.com/a11y/v1/our-a11y.iife.js`
 - Releases: `https://github.com/rudraksha-avatara/our-a11y/releases`
 - Issues: `https://github.com/rudraksha-avatara/our-a11y/issues`
