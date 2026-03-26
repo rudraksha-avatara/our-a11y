@@ -13,8 +13,11 @@ type Callbacks = {
 };
 
 interface ControlMap {
-  [key: string]: HTMLInputElement | HTMLSelectElement | null;
+  [key: string]: HTMLInputElement | HTMLSelectElement | HTMLSpanElement | null;
 }
+
+const FOCUSABLE_SELECTOR =
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 export class WidgetUI {
   private host?: HTMLDivElement;
@@ -23,7 +26,6 @@ export class WidgetUI {
   private panel?: HTMLDivElement;
   private liveRegion?: HTMLDivElement;
   private controls: ControlMap = {};
-  private lastFocusedBeforeOpen?: HTMLElement | null;
 
   constructor(private readonly config: A11yConfig, private readonly callbacks: Callbacks) {}
 
@@ -39,43 +41,49 @@ export class WidgetUI {
     style.textContent = widgetStyles;
     this.shadow.appendChild(style);
 
-    const shell = createEl('div', { class: 'oa-shell', 'data-position': this.config.position });
-    shell.style.setProperty('--oa-accent', this.config.ui.accentColor);
-    shell.style.setProperty('--oa-z-index', String(this.config.zIndex));
+    const shell = createEl('div', { class: 'a11y-shell', 'data-position': this.config.position });
+    shell.style.setProperty('--a11y-primary', this.config.ui.accentColor);
+    shell.style.setProperty('--a11y-z-index', String(this.config.zIndex));
 
     this.launcher = createEl('button', {
-      class: 'oa-launcher',
+      class: 'a11y-fab',
       type: 'button',
       'aria-haspopup': 'dialog',
       'aria-expanded': 'false',
-      'aria-controls': 'oa-panel'
+      'aria-controls': 'a11y-panel',
+      'aria-label': 'Open accessibility panel'
     });
-    this.launcher.innerHTML = '<span aria-hidden="true">A11y</span><span>Accessibility</span>';
+    this.launcher.append(this.createLauncherIcon(), this.createLauncherLabel());
     this.launcher.addEventListener('click', () => this.callbacks.onTogglePanel());
 
     this.panel = createEl('div', {
-      class: 'oa-panel',
-      id: 'oa-panel',
+      class: 'a11y-panel',
+      id: 'a11y-panel',
       role: 'dialog',
-      'aria-label': this.config.ui.title,
-      'aria-modal': 'false',
+      'aria-label': 'Accessibility',
+      'aria-modal': 'true',
       'data-open': 'false'
     });
-    this.panel.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        this.callbacks.onClosePanel();
-      }
-    });
+    this.panel.addEventListener('keydown', this.handlePanelKeydown);
 
-    const header = createEl('div', { class: 'oa-header' });
-    const title = createEl('h2', { class: 'oa-title' });
-    title.textContent = this.config.ui.title;
-    const description = createEl('p', { class: 'oa-description' });
+    const header = createEl('div', { class: 'a11y-header' });
+    const headerCopy = createEl('div', { class: 'a11y-header-copy' });
+    const title = createEl('h2', { class: 'a11y-title' });
+    title.textContent = 'Accessibility';
+    const description = createEl('p', { class: 'a11y-description' });
     description.textContent = this.config.ui.description;
-    header.append(title, description);
+    headerCopy.append(title, description);
 
-    const body = createEl('div', { class: 'oa-body' });
+    const closeButton = createEl('button', {
+      class: 'a11y-close',
+      type: 'button',
+      'aria-label': 'Close accessibility panel'
+    });
+    closeButton.append(this.createCloseIcon());
+    closeButton.addEventListener('click', () => this.callbacks.onClosePanel());
+    header.append(headerCopy, closeButton);
+
+    const body = createEl('div', { class: 'a11y-body' });
     body.append(
       this.buildRangeGroup(initialPreferences),
       this.buildToggleGroup(initialPreferences),
@@ -83,10 +91,18 @@ export class WidgetUI {
       this.buildDiagnosticsGroup()
     );
 
-    this.liveRegion = createEl('div', { class: 'oa-live', 'aria-live': 'polite' });
-    this.liveRegion.textContent = '';
+    const footer = createEl('div', { class: 'a11y-footer' });
+    const resetButton = createEl('button', {
+      class: 'a11y-button',
+      type: 'button',
+      'aria-label': 'Reset accessibility preferences'
+    });
+    resetButton.textContent = 'Reset';
+    resetButton.addEventListener('click', () => this.callbacks.onReset());
+    footer.append(resetButton);
 
-    this.panel.append(header, body, this.liveRegion);
+    this.liveRegion = createEl('div', { class: 'a11y-live', 'aria-live': 'polite' });
+    this.panel.append(header, body, footer, this.liveRegion);
     shell.append(this.launcher, this.panel);
     this.shadow.appendChild(shell);
 
@@ -95,7 +111,7 @@ export class WidgetUI {
   }
 
   private buildRangeGroup(preferences: Preferences): HTMLElement {
-    const group = createEl('section', { class: 'oa-group' });
+    const group = createEl('section', { class: 'a11y-group' });
     group.append(this.groupTitle('Readability'));
     group.append(
       this.rangeRow('Text size', 'textScale', preferences.textScale, 1, 1.6, 0.1),
@@ -107,7 +123,7 @@ export class WidgetUI {
   }
 
   private buildToggleGroup(preferences: Preferences): HTMLElement {
-    const group = createEl('section', { class: 'oa-group' });
+    const group = createEl('section', { class: 'a11y-group' });
     group.append(this.groupTitle('Enhancements'));
     const toggles: Array<[string, PreferenceKey, string]> = [
       ['Readable font', 'readableFont', 'Switch to a highly legible system font stack.'],
@@ -130,52 +146,47 @@ export class WidgetUI {
   }
 
   private buildPresetGroup(): HTMLElement {
-    const group = createEl('section', { class: 'oa-group' });
+    const group = createEl('section', { class: 'a11y-group' });
     group.append(this.groupTitle('Presets'));
-    const row = createEl('div', { class: 'oa-row' });
-    const labelWrap = createEl('div');
-    const label = createEl('div', { class: 'oa-label' });
-    label.textContent = 'Quick profile';
-    const hint = createEl('div', { class: 'oa-hint' });
-    hint.textContent = 'Applies a curated set of preference values.';
-    labelWrap.append(label, hint);
 
-    const select = createEl('select') as HTMLSelectElement;
+    const row = createEl('div', { class: 'a11y-row a11y-row-inline' });
+    const copy = this.rowCopy('Quick profile', 'Apply a curated set of preference values.');
+    const select = createEl('select', {
+      class: 'a11y-select',
+      'aria-label': 'Select accessibility preset'
+    }) as HTMLSelectElement;
+
     Object.keys(presetMap).forEach((name) => {
       const option = document.createElement('option');
       option.value = name;
       option.textContent = name === 'none' ? 'None' : name;
       select.appendChild(option);
     });
+
     select.addEventListener('change', () => this.callbacks.onApplyPreset(select.value));
     this.controls.preset = select;
-    row.append(labelWrap, select);
-
-    const actions = createEl('div', { class: 'oa-actions' });
-    const resetButton = createEl('button', { class: 'oa-button', type: 'button' });
-    resetButton.textContent = 'Reset';
-    resetButton.addEventListener('click', () => this.callbacks.onReset());
-    actions.append(resetButton);
-
-    group.append(row, actions);
+    row.append(copy, select);
+    group.append(row);
     return group;
   }
 
   private buildDiagnosticsGroup(): HTMLElement {
-    const group = createEl('section', { class: 'oa-group' });
+    const group = createEl('section', { class: 'a11y-group' });
     group.append(this.groupTitle('Diagnostics'));
-    const actions = createEl('div', { class: 'oa-actions' });
-    const scanButton = createEl('button', { class: 'oa-button', type: 'button' });
-    scanButton.textContent = 'Scan page';
-    scanButton.addEventListener('click', () => this.callbacks.onScan());
-    actions.append(scanButton);
-    const list = createEl('ul', { class: 'oa-issues' });
-    group.append(actions, list);
+
+    const row = createEl('div', { class: 'a11y-row a11y-row-inline' });
+    row.append(
+      this.rowCopy('Scan page', 'Run a lightweight scan for common detectable issues.'),
+      this.createActionButton('Scan', 'Scan page for accessibility issues', () => this.callbacks.onScan(), true)
+    );
+
+    const list = createEl('ul', { class: 'a11y-issues' });
+    group.append(row, list);
     return group;
   }
 
   private groupTitle(text: string): HTMLElement {
-    const title = createEl('h3', { class: 'oa-group-title' });
+    const title = createEl('h3', { class: 'a11y-group-title' });
     title.textContent = text;
     return title;
   }
@@ -188,14 +199,12 @@ export class WidgetUI {
     max: number,
     step: number
   ): HTMLElement {
-    const row = createEl('div', { class: 'oa-row' });
-    const label = createEl('label');
-    const text = createEl('div', { class: 'oa-label' });
-    text.textContent = labelText;
-    label.appendChild(text);
+    const row = createEl('div', { class: 'a11y-row' });
+    row.append(this.rowCopy(labelText, this.getRangeHint(key)));
 
+    const rangeWrap = createEl('div', { class: 'a11y-range-wrap' });
     const input = createEl('input', {
-      class: 'oa-range',
+      class: 'a11y-range',
       type: 'range',
       min: String(min),
       max: String(max),
@@ -203,30 +212,38 @@ export class WidgetUI {
       value: String(value),
       'aria-label': labelText
     }) as HTMLInputElement;
-    input.addEventListener('input', () => this.callbacks.onSetPreference(key, Number(input.value) as never));
+    const valueBadge = createEl('span', { class: 'a11y-range-value', 'aria-hidden': 'true' });
+    input.addEventListener('input', () => {
+      valueBadge.textContent = this.formatRangeValue(key, Number(input.value));
+      this.callbacks.onSetPreference(key, Number(input.value) as never);
+    });
+
     this.controls[key] = input;
-    row.append(label, input);
+    this.controls[`${key}Display`] = valueBadge;
+    valueBadge.textContent = this.formatRangeValue(key, value);
+    rangeWrap.append(input, valueBadge);
+    row.append(rangeWrap);
     return row;
   }
 
   private toggleRow(labelText: string, key: PreferenceKey, checked: boolean, hintText: string): HTMLElement {
-    const row = createEl('div', { class: 'oa-row' });
-    const wrap = createEl('label');
-    const label = createEl('div', { class: 'oa-label' });
-    label.textContent = labelText;
-    const hint = createEl('div', { class: 'oa-hint' });
-    hint.textContent = hintText;
-    wrap.append(label, hint);
+    const row = createEl('div', { class: 'a11y-row a11y-row-inline' });
+    row.append(this.rowCopy(labelText, hintText));
 
+    const switchWrap = createEl('label', { class: 'a11y-switch' });
     const input = createEl('input', {
-      class: 'oa-toggle',
+      class: 'a11y-switch-input',
       type: 'checkbox',
-      'aria-label': labelText
+      'aria-label': labelText,
+      role: 'switch'
     }) as HTMLInputElement;
     input.checked = checked;
     input.addEventListener('change', () => this.callbacks.onSetPreference(key, input.checked as never));
+
+    const ui = createEl('span', { class: 'a11y-switch-ui', 'aria-hidden': 'true' });
+    switchWrap.append(input, ui);
     this.controls[key] = input;
-    row.append(wrap, input);
+    row.append(switchWrap);
     return row;
   }
 
@@ -234,17 +251,16 @@ export class WidgetUI {
     if (!this.panel || !this.launcher) {
       return;
     }
+
+    this.panel.setAttribute('data-open', open ? 'true' : 'false');
+    this.launcher.setAttribute('aria-expanded', open ? 'true' : 'false');
+
     if (open) {
-      this.lastFocusedBeforeOpen = document.activeElement as HTMLElement | null;
-      this.panel.setAttribute('data-open', 'true');
-      this.launcher.setAttribute('aria-expanded', 'true');
-      this.panel.querySelector<HTMLElement>('input, button, select')?.focus();
-    } else {
-      this.panel.setAttribute('data-open', 'false');
-      this.launcher.setAttribute('aria-expanded', 'false');
-      this.launcher.focus();
-      this.lastFocusedBeforeOpen = null;
+      this.panel.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)?.focus();
+      return;
     }
+
+    this.launcher.focus();
   }
 
   announce(message: string): void {
@@ -259,28 +275,37 @@ export class WidgetUI {
       if (!control) {
         return;
       }
+
       if (control instanceof HTMLInputElement && control.type === 'checkbox') {
         control.checked = Boolean(value);
-      } else {
+      } else if (control instanceof HTMLInputElement && control.type === 'range') {
+        control.value = String(value);
+        const valueBadge = this.controls[`${key}Display`];
+        if (valueBadge instanceof HTMLSpanElement) {
+          valueBadge.textContent = this.formatRangeValue(key as PreferenceKey, Number(value));
+        }
+      } else if (control instanceof HTMLSelectElement) {
         control.value = String(value);
       }
     });
   }
 
   renderScanResults(summary: ScanSummary): void {
-    const list = this.shadow?.querySelector('.oa-issues');
+    const list = this.shadow?.querySelector('.a11y-issues');
     if (!list) {
       return;
     }
+
     list.innerHTML = '';
     if (summary.issues.length === 0) {
-      const item = createEl('li', { class: 'oa-issue' });
+      const item = createEl('li', { class: 'a11y-issue' });
       item.textContent = 'No issues detected by the lightweight scanner.';
       list.appendChild(item);
       return;
     }
+
     summary.issues.slice(0, 10).forEach((issue) => {
-      const item = createEl('li', { class: 'oa-issue' });
+      const item = createEl('li', { class: 'a11y-issue' });
       const strong = createEl('strong');
       strong.textContent = issue.message;
       const selector = createEl('div');
@@ -292,10 +317,119 @@ export class WidgetUI {
     });
   }
 
+  private rowCopy(labelText: string, hintText: string): HTMLElement {
+    const copy = createEl('div', { class: 'a11y-copy' });
+    const label = createEl('div', { class: 'a11y-label' });
+    label.textContent = labelText;
+    const hint = createEl('div', { class: 'a11y-hint' });
+    hint.textContent = hintText;
+    copy.append(label, hint);
+    return copy;
+  }
+
+  private createActionButton(
+    text: string,
+    ariaLabel: string,
+    handler: () => void,
+    primary = false
+  ): HTMLButtonElement {
+    const button = createEl('button', {
+      class: primary ? 'a11y-button a11y-button-primary' : 'a11y-button',
+      type: 'button',
+      'aria-label': ariaLabel
+    }) as HTMLButtonElement;
+    button.textContent = text;
+    button.addEventListener('click', handler);
+    return button;
+  }
+
+  private createLauncherIcon(): HTMLElement {
+    const icon = createEl('span', { class: 'a11y-fab-icon', 'aria-hidden': 'true' });
+    icon.innerHTML =
+      '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 1 0 9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 7.2v4.8l3.6 2.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity="0.55"/></svg>';
+    return icon;
+  }
+
+  private createLauncherLabel(): HTMLElement {
+    const label = createEl('span', { class: 'a11y-fab-label' });
+    label.textContent = 'Accessibility';
+    return label;
+  }
+
+  private createCloseIcon(): HTMLElement {
+    const icon = createEl('span', { class: 'a11y-close-icon', 'aria-hidden': 'true' });
+    icon.innerHTML =
+      '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+    return icon;
+  }
+
+  private getRangeHint(key: PreferenceKey): string {
+    const hints: Partial<Record<PreferenceKey, string>> = {
+      textScale: 'Increase overall text size without changing page zoom.',
+      lineHeight: 'Add more vertical breathing room between lines.',
+      letterSpacing: 'Increase spacing between individual characters.',
+      wordSpacing: 'Increase spacing between words for easier scanning.'
+    };
+    return hints[key] ?? '';
+  }
+
+  private formatRangeValue(key: PreferenceKey, value: number): string {
+    if (key === 'textScale') {
+      return `${Math.round(value * 100)}%`;
+    }
+    return value.toFixed(2).replace(/\.00$/, '');
+  }
+
+  private getFocusableElements(): HTMLElement[] {
+    return Array.from(this.panel?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR) ?? []).filter(
+      (element) => !element.hasAttribute('disabled')
+    );
+  }
+
+  private handlePanelKeydown = (event: KeyboardEvent): void => {
+    if (!this.panel || this.panel.getAttribute('data-open') !== 'true') {
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.callbacks.onClosePanel();
+      return;
+    }
+
+    if (event.key !== 'Tab') {
+      return;
+    }
+
+    const focusables = this.getFocusableElements();
+    if (focusables.length === 0) {
+      return;
+    }
+
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (!first || !last) {
+      return;
+    }
+    const active = this.shadow?.activeElement ?? document.activeElement;
+
+    if (event.shiftKey && active === first) {
+      event.preventDefault();
+      last.focus();
+      return;
+    }
+
+    if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
+
   private handleDocumentClick = (event: MouseEvent): void => {
     if (!this.panel || this.panel.getAttribute('data-open') !== 'true') {
       return;
     }
+
     const path = event.composedPath();
     if (!path.includes(this.host as EventTarget)) {
       this.callbacks.onClosePanel();

@@ -16,7 +16,6 @@ export declare class WidgetUI {
     private panel?;
     private liveRegion?;
     private controls;
-    private lastFocusedBeforeOpen?;
     constructor(config: A11yConfig, callbacks: Callbacks);
     mount(initialPreferences: Preferences): void;
     private buildRangeGroup;
@@ -30,6 +29,15 @@ export declare class WidgetUI {
     announce(message: string): void;
     sync(preferences: Preferences): void;
     renderScanResults(summary: ScanSummary): void;
+    private rowCopy;
+    private createActionButton;
+    private createLauncherIcon;
+    private createLauncherLabel;
+    private createCloseIcon;
+    private getRangeHint;
+    private formatRangeValue;
+    private getFocusableElements;
+    private handlePanelKeydown;
     private handleDocumentClick;
     destroy(): void;
 }
