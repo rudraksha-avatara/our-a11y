@@ -22,10 +22,12 @@ const FOCUSABLE_SELECTOR =
 export class WidgetUI {
   private host?: HTMLDivElement;
   private shadow?: ShadowRoot;
+  private widgetRoot?: HTMLDivElement;
   private launcher?: HTMLButtonElement;
   private panel?: HTMLDivElement;
   private liveRegion?: HTMLDivElement;
   private controls: ControlMap = {};
+  private isMobile = false;
 
   constructor(private readonly config: A11yConfig, private readonly callbacks: Callbacks) {}
 
@@ -41,12 +43,12 @@ export class WidgetUI {
     style.textContent = widgetStyles;
     this.shadow.appendChild(style);
 
-    const shell = createEl('div', { class: 'a11y-shell', 'data-position': this.config.position });
-    shell.style.setProperty('--a11y-primary', this.config.ui.accentColor);
-    shell.style.setProperty('--a11y-z-index', String(this.config.zIndex));
+    this.widgetRoot = createEl('div', { class: 'a11y-widget', 'data-position': this.config.position });
+    this.widgetRoot.style.setProperty('--a11y-primary', this.config.ui.accentColor);
+    this.widgetRoot.style.setProperty('--a11y-z-index', String(this.config.zIndex));
 
     this.launcher = createEl('button', {
-      class: 'a11y-fab',
+      class: 'a11y-launcher',
       type: 'button',
       'aria-haspopup': 'dialog',
       'aria-expanded': 'false',
@@ -62,7 +64,8 @@ export class WidgetUI {
       role: 'dialog',
       'aria-label': 'Accessibility',
       'aria-modal': 'true',
-      'data-open': 'false'
+      'data-open': 'false',
+      tabindex: '-1'
     });
     this.panel.addEventListener('keydown', this.handlePanelKeydown);
 
@@ -103,10 +106,13 @@ export class WidgetUI {
 
     this.liveRegion = createEl('div', { class: 'a11y-live', 'aria-live': 'polite' });
     this.panel.append(header, body, footer, this.liveRegion);
-    shell.append(this.launcher, this.panel);
-    this.shadow.appendChild(shell);
+    this.widgetRoot.append(this.launcher, this.panel);
+    this.shadow.appendChild(this.widgetRoot);
 
     document.addEventListener('click', this.handleDocumentClick, true);
+    window.addEventListener('resize', this.handleViewportChange, { passive: true });
+    window.addEventListener('orientationchange', this.handleViewportChange);
+    this.updateViewportMode();
     this.sync(initialPreferences);
   }
 
@@ -248,15 +254,22 @@ export class WidgetUI {
   }
 
   setOpen(open: boolean): void {
-    if (!this.panel || !this.launcher) {
+    if (!this.panel || !this.launcher || !this.widgetRoot) {
       return;
     }
 
+    this.widgetRoot.classList.toggle('a11y-widget--open', open);
     this.panel.setAttribute('data-open', open ? 'true' : 'false');
+    this.panel.classList.toggle('a11y-panel--open', open);
     this.launcher.setAttribute('aria-expanded', open ? 'true' : 'false');
+    this.launcher.classList.toggle('a11y-launcher--hidden', open);
+    this.launcher.tabIndex = open ? -1 : 0;
+    this.launcher.setAttribute('aria-hidden', open ? 'true' : 'false');
 
     if (open) {
-      this.panel.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)?.focus();
+      window.requestAnimationFrame(() => {
+        this.panel?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)?.focus();
+      });
       return;
     }
 
@@ -386,8 +399,22 @@ export class WidgetUI {
     );
   }
 
+  private updateViewportMode(): void {
+    if (!this.widgetRoot || !this.panel) {
+      return;
+    }
+
+    this.isMobile = window.innerWidth <= 640;
+    this.widgetRoot.classList.toggle('a11y-widget--mobile', this.isMobile);
+    this.panel.classList.toggle('a11y-panel--mobile', this.isMobile);
+  }
+
+  private handleViewportChange = (): void => {
+    this.updateViewportMode();
+  };
+
   private handlePanelKeydown = (event: KeyboardEvent): void => {
-    if (!this.panel || this.panel.getAttribute('data-open') !== 'true') {
+    if (!this.panel || !this.panel.classList.contains('a11y-panel--open')) {
       return;
     }
 
@@ -426,7 +453,7 @@ export class WidgetUI {
   };
 
   private handleDocumentClick = (event: MouseEvent): void => {
-    if (!this.panel || this.panel.getAttribute('data-open') !== 'true') {
+    if (!this.panel || !this.panel.classList.contains('a11y-panel--open')) {
       return;
     }
 
@@ -438,10 +465,13 @@ export class WidgetUI {
 
   destroy(): void {
     document.removeEventListener('click', this.handleDocumentClick, true);
+    window.removeEventListener('resize', this.handleViewportChange);
+    window.removeEventListener('orientationchange', this.handleViewportChange);
     this.host?.remove();
     this.controls = {};
     this.host = undefined;
     this.shadow = undefined;
+    this.widgetRoot = undefined;
     this.panel = undefined;
     this.launcher = undefined;
     this.liveRegion = undefined;

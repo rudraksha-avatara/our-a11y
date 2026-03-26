@@ -16,10 +16,10 @@ export const widgetStyles = `
   box-sizing: border-box;
 }
 
-.a11y-shell {
+.a11y-widget {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
   z-index: var(--a11y-z-index, 2147483000);
   display: flex;
   flex-direction: column;
@@ -29,13 +29,17 @@ export const widgetStyles = `
   color: var(--a11y-text);
 }
 
-.a11y-shell[data-position="bottom-left"] {
+.a11y-widget[data-position="bottom-left"] {
   left: 20px;
   right: auto;
   align-items: flex-start;
 }
 
-.a11y-fab {
+.a11y-widget--open {
+  gap: 10px;
+}
+
+.a11y-launcher {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -50,23 +54,36 @@ export const widgetStyles = `
   box-shadow: 0 8px 22px rgba(31, 41, 55, 0.18);
   cursor: pointer;
   font: 600 14px/1 system-ui, sans-serif;
-  transition: transform 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+  transform-origin: bottom right;
+  transition:
+    opacity 160ms ease,
+    visibility 160ms ease,
+    transform 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
 }
 
-.a11y-fab:hover {
+.a11y-launcher:hover {
   transform: scale(1.02);
 }
 
-.a11y-fab:active {
+.a11y-launcher:active {
   transform: scale(0.98);
 }
 
-.a11y-fab:focus-visible,
+.a11y-launcher:focus-visible,
 .a11y-panel button:focus-visible,
 .a11y-panel input:focus-visible,
 .a11y-panel select:focus-visible {
   outline: 3px solid var(--a11y-focus);
   outline-offset: 2px;
+}
+
+.a11y-launcher--hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: scale(0.96);
 }
 
 .a11y-fab-icon,
@@ -91,9 +108,10 @@ export const widgetStyles = `
   pointer-events: none;
   visibility: hidden;
   transition: opacity 180ms ease, transform 180ms ease, visibility 180ms ease;
+  transform-origin: bottom right;
 }
 
-.a11y-panel[data-open="true"] {
+.a11y-panel--open {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
@@ -388,7 +406,7 @@ export const widgetStyles = `
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .a11y-fab,
+  .a11y-launcher,
   .a11y-close,
   .a11y-button,
   .a11y-panel,
@@ -406,11 +424,17 @@ export const widgetStyles = `
   .a11y-panel {
     width: min(360px, calc(100vw - 28px));
   }
+
+  .a11y-launcher {
+    height: 46px;
+    min-width: 46px;
+    padding: 0 15px;
+  }
 }
 
 @media (max-width: 640px) {
-  .a11y-shell,
-  .a11y-shell[data-position="bottom-left"] {
+  .a11y-widget,
+  .a11y-widget[data-position="bottom-left"] {
     left: 0;
     right: 0;
     bottom: 0;
@@ -419,7 +443,7 @@ export const widgetStyles = `
     padding: 0 12px 12px;
   }
 
-  .a11y-fab {
+  .a11y-launcher {
     align-self: flex-end;
     width: 44px;
     height: 44px;
@@ -436,10 +460,12 @@ export const widgetStyles = `
     clip-path: inset(50%);
   }
 
-  .a11y-panel {
+  .a11y-panel,
+  .a11y-panel--mobile {
     width: 100%;
     max-height: 90vh;
     border-radius: 20px 20px 0 0;
+    transform-origin: bottom center;
   }
 
   .a11y-footer {

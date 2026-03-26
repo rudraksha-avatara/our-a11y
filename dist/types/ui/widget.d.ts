@@ -12,10 +12,12 @@ export declare class WidgetUI {
     private readonly callbacks;
     private host?;
     private shadow?;
+    private widgetRoot?;
     private launcher?;
     private panel?;
     private liveRegion?;
     private controls;
+    private isMobile;
     constructor(config: A11yConfig, callbacks: Callbacks);
     mount(initialPreferences: Preferences): void;
     private buildRangeGroup;
@@ -37,6 +39,8 @@ export declare class WidgetUI {
     private getRangeHint;
     private formatRangeValue;
     private getFocusableElements;
+    private updateViewportMode;
+    private handleViewportChange;
     private handlePanelKeydown;
     private handleDocumentClick;
     destroy(): void;

@@ -1,6 +1,6 @@
 var O = Object.defineProperty;
 var D = (a, e, t) => e in a ? O(a, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : a[e] = t;
-var d = (a, e, t) => D(a, typeof e != "symbol" ? e + "" : e, t);
+var l = (a, e, t) => D(a, typeof e != "symbol" ? e + "" : e, t);
 function k() {
   return typeof window != "undefined" && typeof document != "undefined";
 }
@@ -16,7 +16,7 @@ function T(a) {
 function S(a, e, t) {
   return Math.min(t, Math.max(e, a));
 }
-function l(a, e = {}) {
+function d(a, e = {}) {
   const t = document.createElement(a);
   return Object.entries(e).forEach(([i, n]) => {
     t.setAttribute(i, n);
@@ -31,17 +31,17 @@ function v(a) {
     return e.trim();
   const t = a.getAttribute("aria-labelledby");
   if (t) {
-    const r = t.split(/\s+/).map((o) => {
-      var s, c, h;
-      return (h = (c = (s = document.getElementById(o)) == null ? void 0 : s.textContent) == null ? void 0 : c.trim()) != null ? h : "";
+    const o = t.split(/\s+/).map((s) => {
+      var r, c, h;
+      return (h = (c = (r = document.getElementById(s)) == null ? void 0 : r.textContent) == null ? void 0 : c.trim()) != null ? h : "";
     }).join(" ").trim();
-    if (r)
-      return r;
+    if (o)
+      return o;
   }
   const i = a.getAttribute("title");
   return i ? i.trim() : ((n = a.textContent) != null ? n : "").trim();
 }
-function N(a) {
+function F(a) {
   const e = [];
   let t = a;
   for (; t && t !== document.body && e.length < 4; ) {
@@ -54,25 +54,25 @@ function N(a) {
   }
   return e.join(" > ") || a.tagName.toLowerCase();
 }
-function F(a) {
+function N(a) {
   return !(a.getAttribute("role") === "presentation" || a.getAttribute("aria-hidden") === "true" || !a.alt && a.width <= 24 && a.height <= 24);
 }
-function y(a, e, t, i, n, r = !1) {
+function m(a, e, t, i, n, o = !1) {
   return {
     id: `${a}-${Math.random().toString(36).slice(2, 10)}`,
     type: a,
     severity: e,
     message: t,
-    selector: N(i),
+    selector: F(i),
     suggestion: n,
-    autoFixAvailable: r
+    autoFixAvailable: o
   };
 }
 class B {
   scan(e = document) {
     const t = [], i = e instanceof Document ? e : document;
     i.documentElement.hasAttribute("lang") || t.push(
-      y(
+      m(
         "missing-lang",
         "medium",
         "Document language is not declared.",
@@ -81,7 +81,7 @@ class B {
         !0
       )
     ), i.querySelector('main, [role="main"]') || t.push(
-      y(
+      m(
         "missing-main",
         "medium",
         "No main landmark was found.",
@@ -89,87 +89,87 @@ class B {
         'Add a main element or a role="main" landmark.',
         !1
       )
-    ), i.querySelectorAll("img").forEach((o) => {
-      const s = o;
-      !s.hasAttribute("alt") && F(s) && t.push(
-        y(
+    ), i.querySelectorAll("img").forEach((s) => {
+      const r = s;
+      !r.hasAttribute("alt") && N(r) && t.push(
+        m(
           "missing-alt",
           "medium",
           "Image appears to be missing alternative text.",
-          s,
+          r,
           "Add meaningful alt text or mark decorative images appropriately.",
           !1
         )
       );
-    }), i.querySelectorAll("input, select, textarea").forEach((o) => {
-      const s = o, c = s.getAttribute("id"), h = !!(c && i.querySelector(`label[for="${CSS.escape(c)}"]`)), u = !!v(s);
+    }), i.querySelectorAll("input, select, textarea").forEach((s) => {
+      const r = s, c = r.getAttribute("id"), h = !!(c && i.querySelector(`label[for="${CSS.escape(c)}"]`)), u = !!v(r);
       !h && !u && t.push(
-        y(
+        m(
           "missing-form-label",
           "high",
           "Form control does not have a clear accessible name.",
-          s,
+          r,
           "Associate a visible label or provide aria-label/aria-labelledby.",
-          !!s.getAttribute("placeholder")
+          !!r.getAttribute("placeholder")
         )
       );
-    }), i.querySelectorAll('button, [role="button"], a[href]').forEach((o) => {
-      const s = o;
-      !v(s) && !s.querySelector("img[alt], svg title") && t.push(
-        y(
-          s.tagName.toLowerCase() === "a" ? "empty-link" : "unnamed-button",
+    }), i.querySelectorAll('button, [role="button"], a[href]').forEach((s) => {
+      const r = s;
+      !v(r) && !r.querySelector("img[alt], svg title") && t.push(
+        m(
+          r.tagName.toLowerCase() === "a" ? "empty-link" : "unnamed-button",
           "high",
           "Interactive element does not have a discernible accessible name.",
-          s,
+          r,
           "Add visible text, aria-label, aria-labelledby, or meaningful image alt text.",
           !1
         )
       );
-    }), i.querySelectorAll("iframe").forEach((o) => {
-      o.getAttribute("title") || t.push(
-        y(
+    }), i.querySelectorAll("iframe").forEach((s) => {
+      s.getAttribute("title") || t.push(
+        m(
           "iframe-missing-title",
           "medium",
           "Iframe is missing a title.",
-          o,
+          s,
           "Add a concise title describing the embedded content.",
           !1
         )
       );
-    }), i.querySelectorAll("video[autoplay], audio[autoplay]").forEach((o) => {
+    }), i.querySelectorAll("video[autoplay], audio[autoplay]").forEach((s) => {
       t.push(
-        y(
+        m(
           "autoplay-media",
           "medium",
           "Autoplaying media may create accessibility barriers.",
-          o,
+          s,
           "Provide controls and avoid autoplay when possible.",
           !1
         )
       );
     });
     const n = Array.from(i.querySelectorAll("h1, h2, h3, h4, h5, h6"));
-    let r = 0;
-    return n.forEach((o) => {
-      const s = Number(o.tagName[1]);
-      r && s > r + 1 && t.push(
-        y(
+    let o = 0;
+    return n.forEach((s) => {
+      const r = Number(s.tagName[1]);
+      o && r > o + 1 && t.push(
+        m(
           "heading-order",
           "low",
           "Heading level appears to skip levels.",
-          o,
+          s,
           "Review heading hierarchy for a logical outline.",
           !1
         )
-      ), r = s;
-    }), i.querySelectorAll("a[href]").forEach((o) => {
-      const s = v(o);
-      !s && o.childElementCount > 0 || s && /^(click here|read more|more)$/i.test(s) && t.push(
-        y(
+      ), o = r;
+    }), i.querySelectorAll("a[href]").forEach((s) => {
+      const r = v(s);
+      !r && s.childElementCount > 0 || r && /^(click here|read more|more)$/i.test(r) && t.push(
+        m(
           "weak-link-text",
           "low",
           "Link text may not be descriptive out of context.",
-          o,
+          s,
           "Use more descriptive link text.",
           !1
         )
@@ -182,25 +182,25 @@ class B {
 }
 class $ {
   constructor() {
-    d(this, "appliedMutations", []);
-    d(this, "skipLink");
+    l(this, "appliedMutations", []);
+    l(this, "skipLink");
   }
   apply(e, t = document) {
     const i = t instanceof Document ? t : document;
     i.documentElement.getAttribute("lang") || (this.recordAttr(i.documentElement, "lang"), i.documentElement.setAttribute("lang", e.locale || navigator.language.split("-")[0] || "en")), e.features.skipLink && this.ensureSkipLink(i), i.querySelectorAll('button, [role="button"], a[href]').forEach((n) => {
-      var u, m, x, b;
-      const r = n;
-      if (v(r))
+      var u, b, w, y;
+      const o = n;
+      if (v(o))
         return;
-      const o = (m = (u = r.querySelector("img[alt]")) == null ? void 0 : u.getAttribute("alt")) == null ? void 0 : m.trim(), s = (x = r.getAttribute("title")) == null ? void 0 : x.trim(), c = (b = r.getAttribute("data-label")) == null ? void 0 : b.trim(), h = o || s || c;
-      h && (this.recordAttr(r, "aria-label"), r.setAttribute("aria-label", h));
+      const s = (b = (u = o.querySelector("img[alt]")) == null ? void 0 : u.getAttribute("alt")) == null ? void 0 : b.trim(), r = (w = o.getAttribute("title")) == null ? void 0 : w.trim(), c = (y = o.getAttribute("data-label")) == null ? void 0 : y.trim(), h = s || r || c;
+      h && (this.recordAttr(o, "aria-label"), o.setAttribute("aria-label", h));
     }), i.querySelectorAll("input, textarea").forEach((n) => {
       var h;
-      const r = n, o = r.getAttribute("id");
-      if (!!(o && i.querySelector(`label[for="${CSS.escape(o)}"]`)) || v(r))
+      const o = n, s = o.getAttribute("id");
+      if (!!(s && i.querySelector(`label[for="${CSS.escape(s)}"]`)) || v(o))
         return;
-      const c = (h = r.getAttribute("placeholder")) == null ? void 0 : h.trim();
-      c && (this.recordAttr(r, "aria-label"), r.setAttribute("aria-label", c));
+      const c = (h = o.getAttribute("placeholder")) == null ? void 0 : h.trim();
+      c && (this.recordAttr(o, "aria-label"), o.setAttribute("aria-label", c));
     });
   }
   ensureSkipLink(e) {
@@ -236,11 +236,11 @@ function L(a) {
 }
 class _ {
   constructor(e) {
-    d(this, "observer");
-    d(this, "pendingHandle");
-    d(this, "routeHandler", () => this.schedule());
-    d(this, "originalPushState");
-    d(this, "originalReplaceState");
+    l(this, "observer");
+    l(this, "pendingHandle");
+    l(this, "routeHandler", () => this.schedule());
+    l(this, "originalPushState");
+    l(this, "originalReplaceState");
     this.onChange = e;
   }
   start() {
@@ -278,7 +278,7 @@ class _ {
 }
 class j {
   constructor() {
-    d(this, "store", /* @__PURE__ */ new Map());
+    l(this, "store", /* @__PURE__ */ new Map());
   }
   getItem(e) {
     var t;
@@ -291,7 +291,7 @@ class j {
     this.store.delete(e);
   }
 }
-function K() {
+function V() {
   try {
     const a = "__our_a11y_test__";
     return window.localStorage.setItem(a, "1"), window.localStorage.removeItem(a), window.localStorage;
@@ -321,14 +321,14 @@ function f(a) {
   return !!a;
 }
 function A(a) {
-  var t, i, n, r;
+  var t, i, n, o;
   const e = a != null ? a : {};
   return {
     version: M,
     textScale: S(Number((t = e.textScale) != null ? t : p.textScale), 1, 1.6),
     lineHeight: S(Number((i = e.lineHeight) != null ? i : p.lineHeight), 1.4, 2.4),
     letterSpacing: S(Number((n = e.letterSpacing) != null ? n : p.letterSpacing), 0, 0.2),
-    wordSpacing: S(Number((r = e.wordSpacing) != null ? r : p.wordSpacing), 0, 0.3),
+    wordSpacing: S(Number((o = e.wordSpacing) != null ? o : p.wordSpacing), 0, 0.3),
     readableFont: f(e.readableFont),
     underlineLinks: f(e.underlineLinks),
     highlightLinks: f(e.highlightLinks),
@@ -342,10 +342,10 @@ function A(a) {
     readingGuide: f(e.readingGuide)
   };
 }
-class U {
+class K {
   constructor(e) {
-    d(this, "storage", K());
-    d(this, "current");
+    l(this, "storage", V());
+    l(this, "current");
     this.storageKey = e, this.current = this.load();
   }
   load() {
@@ -373,7 +373,7 @@ class U {
     return this.current = { ...p }, this.persist(), this.getAll();
   }
 }
-const P = "our-a11y-host-styles", V = `
+const P = "our-a11y-host-styles", U = `
 html[data-oa-enabled="true"] {
   --oa-text-scale: 1;
   --oa-line-height: 1.6;
@@ -478,15 +478,15 @@ html[data-oa-reading-guide="true"] #our-a11y-reading-guide {
 `;
 class Y {
   constructor() {
-    d(this, "styleEl");
-    d(this, "readingGuide");
-    d(this, "root", document.documentElement);
-    d(this, "body", document.body);
-    d(this, "mouseMoveHandler");
+    l(this, "styleEl");
+    l(this, "readingGuide");
+    l(this, "root", document.documentElement);
+    l(this, "body", document.body);
+    l(this, "mouseMoveHandler");
   }
   init() {
     var e;
-    this.styleEl = (e = document.getElementById(P)) != null ? e : document.createElement("style"), this.styleEl.id = P, this.styleEl.textContent = V, this.styleEl.parentNode || document.head.appendChild(this.styleEl), this.root.setAttribute("data-oa-enabled", "true"), this.ensureReadingGuide();
+    this.styleEl = (e = document.getElementById(P)) != null ? e : document.createElement("style"), this.styleEl.id = P, this.styleEl.textContent = U, this.styleEl.parentNode || document.head.appendChild(this.styleEl), this.root.setAttribute("data-oa-enabled", "true"), this.ensureReadingGuide();
   }
   apply(e) {
     this.root.style.setProperty("--oa-text-scale", String(e.textScale)), this.root.style.setProperty("--oa-line-height", String(e.lineHeight)), this.root.style.setProperty("--oa-letter-spacing", `${e.letterSpacing}em`), this.root.style.setProperty("--oa-word-spacing", `${e.wordSpacing}em`), this.root.style.setProperty("--oa-document-filter", this.getFilterValue(e)), this.toggleAttr("data-oa-text-resize", e.textScale !== p.textScale), this.toggleAttr("data-oa-line-height", e.lineHeight !== p.lineHeight), this.toggleAttr(
@@ -594,7 +594,7 @@ function R(a, e) {
   return a && a.replace(/[<>]/g, "").trim() || e;
 }
 function C(a, e) {
-  var t, i, n, r, o;
+  var t, i, n, o, s;
   return e ? {
     ...a,
     ...e,
@@ -608,9 +608,9 @@ function C(a, e) {
       title: R((t = e.ui) == null ? void 0 : t.title, (i = e.ui) != null && i.title ? e.ui.title : a.ui.title),
       description: R(
         (n = e.ui) == null ? void 0 : n.description,
-        (r = e.ui) != null && r.description ? e.ui.description : a.ui.description
+        (o = e.ui) != null && o.description ? e.ui.description : a.ui.description
       ),
-      accentColor: X((o = e.ui) == null ? void 0 : o.accentColor, a.ui.accentColor)
+      accentColor: X((s = e.ui) == null ? void 0 : s.accentColor, a.ui.accentColor)
     },
     analytics: {
       ...a.analytics,
@@ -619,43 +619,43 @@ function C(a, e) {
   } : a;
 }
 async function Z(a) {
-  var r, o, s, c, h, u, m, x;
+  var o, s, r, c, h, u, b, w;
   if (a.configProvider)
     return a.configProvider(a);
-  if (!((r = a.remoteConfig) != null && r.url) || !k())
+  if (!((o = a.remoteConfig) != null && o.url) || !k())
     return null;
-  const e = `${a.storageKey}:remote-config:${(s = (o = a.token) != null ? o : a.siteId) != null ? s : "default"}`, t = (c = a.remoteConfig.cacheTtlMs) != null ? c : 3e5;
+  const e = `${a.storageKey}:remote-config:${(r = (s = a.token) != null ? s : a.siteId) != null ? r : "default"}`, t = (c = a.remoteConfig.cacheTtlMs) != null ? c : 3e5;
   try {
-    const b = window.sessionStorage.getItem(e);
-    if (b) {
-      const w = JSON.parse(b);
-      if (Date.now() < w.expiresAt)
-        return w.value;
+    const y = window.sessionStorage.getItem(e);
+    if (y) {
+      const x = JSON.parse(y);
+      if (Date.now() < x.expiresAt)
+        return x.value;
     }
   } catch {
   }
   const i = new AbortController(), n = window.setTimeout(() => i.abort(), (h = a.remoteConfig.timeoutMs) != null ? h : 3e3);
   try {
-    const b = await fetch(a.remoteConfig.url, {
+    const y = await fetch(a.remoteConfig.url, {
       signal: i.signal,
       credentials: (u = a.remoteConfig.credentials) != null ? u : "same-origin",
       headers: {
         "content-type": "application/json",
-        "x-site-token": (m = a.token) != null ? m : "",
-        "x-site-id": (x = a.siteId) != null ? x : ""
+        "x-site-token": (b = a.token) != null ? b : "",
+        "x-site-id": (w = a.siteId) != null ? w : ""
       }
     });
-    if (!b.ok)
+    if (!y.ok)
       return null;
-    const w = await b.json();
+    const x = await y.json();
     try {
       window.sessionStorage.setItem(
         e,
-        JSON.stringify({ expiresAt: Date.now() + t, value: w })
+        JSON.stringify({ expiresAt: Date.now() + t, value: x })
       );
     } catch {
     }
-    return w;
+    return x;
   } catch {
     return null;
   } finally {
@@ -693,10 +693,10 @@ const ie = `
   box-sizing: border-box;
 }
 
-.a11y-shell {
+.a11y-widget {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
   z-index: var(--a11y-z-index, 2147483000);
   display: flex;
   flex-direction: column;
@@ -706,13 +706,17 @@ const ie = `
   color: var(--a11y-text);
 }
 
-.a11y-shell[data-position="bottom-left"] {
+.a11y-widget[data-position="bottom-left"] {
   left: 20px;
   right: auto;
   align-items: flex-start;
 }
 
-.a11y-fab {
+.a11y-widget--open {
+  gap: 10px;
+}
+
+.a11y-launcher {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -727,23 +731,36 @@ const ie = `
   box-shadow: 0 8px 22px rgba(31, 41, 55, 0.18);
   cursor: pointer;
   font: 600 14px/1 system-ui, sans-serif;
-  transition: transform 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+  transform-origin: bottom right;
+  transition:
+    opacity 160ms ease,
+    visibility 160ms ease,
+    transform 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
 }
 
-.a11y-fab:hover {
+.a11y-launcher:hover {
   transform: scale(1.02);
 }
 
-.a11y-fab:active {
+.a11y-launcher:active {
   transform: scale(0.98);
 }
 
-.a11y-fab:focus-visible,
+.a11y-launcher:focus-visible,
 .a11y-panel button:focus-visible,
 .a11y-panel input:focus-visible,
 .a11y-panel select:focus-visible {
   outline: 3px solid var(--a11y-focus);
   outline-offset: 2px;
+}
+
+.a11y-launcher--hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: scale(0.96);
 }
 
 .a11y-fab-icon,
@@ -768,9 +785,10 @@ const ie = `
   pointer-events: none;
   visibility: hidden;
   transition: opacity 180ms ease, transform 180ms ease, visibility 180ms ease;
+  transform-origin: bottom right;
 }
 
-.a11y-panel[data-open="true"] {
+.a11y-panel--open {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
@@ -1065,7 +1083,7 @@ const ie = `
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .a11y-fab,
+  .a11y-launcher,
   .a11y-close,
   .a11y-button,
   .a11y-panel,
@@ -1083,11 +1101,17 @@ const ie = `
   .a11y-panel {
     width: min(360px, calc(100vw - 28px));
   }
+
+  .a11y-launcher {
+    height: 46px;
+    min-width: 46px;
+    padding: 0 15px;
+  }
 }
 
 @media (max-width: 640px) {
-  .a11y-shell,
-  .a11y-shell[data-position="bottom-left"] {
+  .a11y-widget,
+  .a11y-widget[data-position="bottom-left"] {
     left: 0;
     right: 0;
     bottom: 0;
@@ -1096,7 +1120,7 @@ const ie = `
     padding: 0 12px 12px;
   }
 
-  .a11y-fab {
+  .a11y-launcher {
     align-self: flex-end;
     width: 44px;
     height: 44px;
@@ -1113,10 +1137,12 @@ const ie = `
     clip-path: inset(50%);
   }
 
-  .a11y-panel {
+  .a11y-panel,
+  .a11y-panel--mobile {
     width: 100%;
     max-height: 90vh;
     border-radius: 20px 20px 0 0;
+    transform-origin: bottom center;
   }
 
   .a11y-footer {
@@ -1126,15 +1152,20 @@ const ie = `
 `, H = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 class ae {
   constructor(e, t) {
-    d(this, "host");
-    d(this, "shadow");
-    d(this, "launcher");
-    d(this, "panel");
-    d(this, "liveRegion");
-    d(this, "controls", {});
-    d(this, "handlePanelKeydown", (e) => {
-      var o, s;
-      if (!this.panel || this.panel.getAttribute("data-open") !== "true")
+    l(this, "host");
+    l(this, "shadow");
+    l(this, "widgetRoot");
+    l(this, "launcher");
+    l(this, "panel");
+    l(this, "liveRegion");
+    l(this, "controls", {});
+    l(this, "isMobile", !1);
+    l(this, "handleViewportChange", () => {
+      this.updateViewportMode();
+    });
+    l(this, "handlePanelKeydown", (e) => {
+      var s, r;
+      if (!this.panel || !this.panel.classList.contains("a11y-panel--open"))
         return;
       if (e.key === "Escape") {
         e.preventDefault(), this.callbacks.onClosePanel();
@@ -1148,66 +1179,65 @@ class ae {
       const i = t[0], n = t[t.length - 1];
       if (!i || !n)
         return;
-      const r = (s = (o = this.shadow) == null ? void 0 : o.activeElement) != null ? s : document.activeElement;
-      if (e.shiftKey && r === i) {
+      const o = (r = (s = this.shadow) == null ? void 0 : s.activeElement) != null ? r : document.activeElement;
+      if (e.shiftKey && o === i) {
         e.preventDefault(), n.focus();
         return;
       }
-      !e.shiftKey && r === n && (e.preventDefault(), i.focus());
+      !e.shiftKey && o === n && (e.preventDefault(), i.focus());
     });
-    d(this, "handleDocumentClick", (e) => {
-      if (!this.panel || this.panel.getAttribute("data-open") !== "true")
+    l(this, "handleDocumentClick", (e) => {
+      if (!this.panel || !this.panel.classList.contains("a11y-panel--open"))
         return;
       e.composedPath().includes(this.host) || this.callbacks.onClosePanel();
     });
     this.config = e, this.callbacks = t;
   }
   mount(e) {
-    this.host = l("div"), this.host.id = "our-a11y-widget-host", this.host.style.position = "fixed", this.host.style.zIndex = String(this.config.zIndex), document.body.appendChild(this.host), this.shadow = this.host.attachShadow({ mode: "open" });
+    this.host = d("div"), this.host.id = "our-a11y-widget-host", this.host.style.position = "fixed", this.host.style.zIndex = String(this.config.zIndex), document.body.appendChild(this.host), this.shadow = this.host.attachShadow({ mode: "open" });
     const t = document.createElement("style");
-    t.textContent = ie, this.shadow.appendChild(t);
-    const i = l("div", { class: "a11y-shell", "data-position": this.config.position });
-    i.style.setProperty("--a11y-primary", this.config.ui.accentColor), i.style.setProperty("--a11y-z-index", String(this.config.zIndex)), this.launcher = l("button", {
-      class: "a11y-fab",
+    t.textContent = ie, this.shadow.appendChild(t), this.widgetRoot = d("div", { class: "a11y-widget", "data-position": this.config.position }), this.widgetRoot.style.setProperty("--a11y-primary", this.config.ui.accentColor), this.widgetRoot.style.setProperty("--a11y-z-index", String(this.config.zIndex)), this.launcher = d("button", {
+      class: "a11y-launcher",
       type: "button",
       "aria-haspopup": "dialog",
       "aria-expanded": "false",
       "aria-controls": "a11y-panel",
       "aria-label": "Open accessibility panel"
-    }), this.launcher.append(this.createLauncherIcon(), this.createLauncherLabel()), this.launcher.addEventListener("click", () => this.callbacks.onTogglePanel()), this.panel = l("div", {
+    }), this.launcher.append(this.createLauncherIcon(), this.createLauncherLabel()), this.launcher.addEventListener("click", () => this.callbacks.onTogglePanel()), this.panel = d("div", {
       class: "a11y-panel",
       id: "a11y-panel",
       role: "dialog",
       "aria-label": "Accessibility",
       "aria-modal": "true",
-      "data-open": "false"
+      "data-open": "false",
+      tabindex: "-1"
     }), this.panel.addEventListener("keydown", this.handlePanelKeydown);
-    const n = l("div", { class: "a11y-header" }), r = l("div", { class: "a11y-header-copy" }), o = l("h2", { class: "a11y-title" });
+    const i = d("div", { class: "a11y-header" }), n = d("div", { class: "a11y-header-copy" }), o = d("h2", { class: "a11y-title" });
     o.textContent = "Accessibility";
-    const s = l("p", { class: "a11y-description" });
-    s.textContent = this.config.ui.description, r.append(o, s);
-    const c = l("button", {
+    const s = d("p", { class: "a11y-description" });
+    s.textContent = this.config.ui.description, n.append(o, s);
+    const r = d("button", {
       class: "a11y-close",
       type: "button",
       "aria-label": "Close accessibility panel"
     });
-    c.append(this.createCloseIcon()), c.addEventListener("click", () => this.callbacks.onClosePanel()), n.append(r, c);
-    const h = l("div", { class: "a11y-body" });
-    h.append(
+    r.append(this.createCloseIcon()), r.addEventListener("click", () => this.callbacks.onClosePanel()), i.append(n, r);
+    const c = d("div", { class: "a11y-body" });
+    c.append(
       this.buildRangeGroup(e),
       this.buildToggleGroup(e),
       this.buildPresetGroup(),
       this.buildDiagnosticsGroup()
     );
-    const u = l("div", { class: "a11y-footer" }), m = l("button", {
+    const h = d("div", { class: "a11y-footer" }), u = d("button", {
       class: "a11y-button",
       type: "button",
       "aria-label": "Reset accessibility preferences"
     });
-    m.textContent = "Reset", m.addEventListener("click", () => this.callbacks.onReset()), u.append(m), this.liveRegion = l("div", { class: "a11y-live", "aria-live": "polite" }), this.panel.append(n, h, u, this.liveRegion), i.append(this.launcher, this.panel), this.shadow.appendChild(i), document.addEventListener("click", this.handleDocumentClick, !0), this.sync(e);
+    u.textContent = "Reset", u.addEventListener("click", () => this.callbacks.onReset()), h.append(u), this.liveRegion = d("div", { class: "a11y-live", "aria-live": "polite" }), this.panel.append(i, c, h, this.liveRegion), this.widgetRoot.append(this.launcher, this.panel), this.shadow.appendChild(this.widgetRoot), document.addEventListener("click", this.handleDocumentClick, !0), window.addEventListener("resize", this.handleViewportChange, { passive: !0 }), window.addEventListener("orientationchange", this.handleViewportChange), this.updateViewportMode(), this.sync(e);
   }
   buildRangeGroup(e) {
-    const t = l("section", { class: "a11y-group" });
+    const t = d("section", { class: "a11y-group" });
     return t.append(this.groupTitle("Readability")), t.append(
       this.rangeRow("Text size", "textScale", e.textScale, 1, 1.6, 0.1),
       this.rangeRow("Line height", "lineHeight", e.lineHeight, 1.4, 2.4, 0.1),
@@ -1216,7 +1246,7 @@ class ae {
     ), t;
   }
   buildToggleGroup(e) {
-    const t = l("section", { class: "a11y-group" });
+    const t = d("section", { class: "a11y-group" });
     return t.append(this.groupTitle("Enhancements")), [
       ["Readable font", "readableFont", "Switch to a highly legible system font stack."],
       ["Underline links", "underlineLinks", "Increase link differentiation."],
@@ -1229,71 +1259,73 @@ class ae {
       ["Reduce motion", "reduceMotion", "Minimize animations and transitions."],
       ["Bigger cursor", "bigCursor", "Use a more visible pointer."],
       ["Reading guide", "readingGuide", "Show a movable reading highlight."]
-    ].forEach(([n, r, o]) => {
-      t.append(this.toggleRow(n, r, e[r], o));
+    ].forEach(([n, o, s]) => {
+      t.append(this.toggleRow(n, o, e[o], s));
     }), t;
   }
   buildPresetGroup() {
-    const e = l("section", { class: "a11y-group" });
+    const e = d("section", { class: "a11y-group" });
     e.append(this.groupTitle("Presets"));
-    const t = l("div", { class: "a11y-row a11y-row-inline" }), i = this.rowCopy("Quick profile", "Apply a curated set of preference values."), n = l("select", {
+    const t = d("div", { class: "a11y-row a11y-row-inline" }), i = this.rowCopy("Quick profile", "Apply a curated set of preference values."), n = d("select", {
       class: "a11y-select",
       "aria-label": "Select accessibility preset"
     });
-    return Object.keys(z).forEach((r) => {
-      const o = document.createElement("option");
-      o.value = r, o.textContent = r === "none" ? "None" : r, n.appendChild(o);
+    return Object.keys(z).forEach((o) => {
+      const s = document.createElement("option");
+      s.value = o, s.textContent = o === "none" ? "None" : o, n.appendChild(s);
     }), n.addEventListener("change", () => this.callbacks.onApplyPreset(n.value)), this.controls.preset = n, t.append(i, n), e.append(t), e;
   }
   buildDiagnosticsGroup() {
-    const e = l("section", { class: "a11y-group" });
+    const e = d("section", { class: "a11y-group" });
     e.append(this.groupTitle("Diagnostics"));
-    const t = l("div", { class: "a11y-row a11y-row-inline" });
+    const t = d("div", { class: "a11y-row a11y-row-inline" });
     t.append(
       this.rowCopy("Scan page", "Run a lightweight scan for common detectable issues."),
       this.createActionButton("Scan", "Scan page for accessibility issues", () => this.callbacks.onScan(), !0)
     );
-    const i = l("ul", { class: "a11y-issues" });
+    const i = d("ul", { class: "a11y-issues" });
     return e.append(t, i), e;
   }
   groupTitle(e) {
-    const t = l("h3", { class: "a11y-group-title" });
+    const t = d("h3", { class: "a11y-group-title" });
     return t.textContent = e, t;
   }
-  rangeRow(e, t, i, n, r, o) {
-    const s = l("div", { class: "a11y-row" });
-    s.append(this.rowCopy(e, this.getRangeHint(t)));
-    const c = l("div", { class: "a11y-range-wrap" }), h = l("input", {
+  rangeRow(e, t, i, n, o, s) {
+    const r = d("div", { class: "a11y-row" });
+    r.append(this.rowCopy(e, this.getRangeHint(t)));
+    const c = d("div", { class: "a11y-range-wrap" }), h = d("input", {
       class: "a11y-range",
       type: "range",
       min: String(n),
-      max: String(r),
-      step: String(o),
+      max: String(o),
+      step: String(s),
       value: String(i),
       "aria-label": e
-    }), u = l("span", { class: "a11y-range-value", "aria-hidden": "true" });
+    }), u = d("span", { class: "a11y-range-value", "aria-hidden": "true" });
     return h.addEventListener("input", () => {
       u.textContent = this.formatRangeValue(t, Number(h.value)), this.callbacks.onSetPreference(t, Number(h.value));
-    }), this.controls[t] = h, this.controls[`${t}Display`] = u, u.textContent = this.formatRangeValue(t, i), c.append(h, u), s.append(c), s;
+    }), this.controls[t] = h, this.controls[`${t}Display`] = u, u.textContent = this.formatRangeValue(t, i), c.append(h, u), r.append(c), r;
   }
   toggleRow(e, t, i, n) {
-    const r = l("div", { class: "a11y-row a11y-row-inline" });
-    r.append(this.rowCopy(e, n));
-    const o = l("label", { class: "a11y-switch" }), s = l("input", {
+    const o = d("div", { class: "a11y-row a11y-row-inline" });
+    o.append(this.rowCopy(e, n));
+    const s = d("label", { class: "a11y-switch" }), r = d("input", {
       class: "a11y-switch-input",
       type: "checkbox",
       "aria-label": e,
       role: "switch"
     });
-    s.checked = i, s.addEventListener("change", () => this.callbacks.onSetPreference(t, s.checked));
-    const c = l("span", { class: "a11y-switch-ui", "aria-hidden": "true" });
-    return o.append(s, c), this.controls[t] = s, r.append(o), r;
+    r.checked = i, r.addEventListener("change", () => this.callbacks.onSetPreference(t, r.checked));
+    const c = d("span", { class: "a11y-switch-ui", "aria-hidden": "true" });
+    return s.append(r, c), this.controls[t] = r, o.append(s), o;
   }
   setOpen(e) {
-    var t;
-    if (!(!this.panel || !this.launcher)) {
-      if (this.panel.setAttribute("data-open", e ? "true" : "false"), this.launcher.setAttribute("aria-expanded", e ? "true" : "false"), e) {
-        (t = this.panel.querySelector(H)) == null || t.focus();
+    if (!(!this.panel || !this.launcher || !this.widgetRoot)) {
+      if (this.widgetRoot.classList.toggle("a11y-widget--open", e), this.panel.setAttribute("data-open", e ? "true" : "false"), this.panel.classList.toggle("a11y-panel--open", e), this.launcher.setAttribute("aria-expanded", e ? "true" : "false"), this.launcher.classList.toggle("a11y-launcher--hidden", e), this.launcher.tabIndex = e ? -1 : 0, this.launcher.setAttribute("aria-hidden", e ? "true" : "false"), e) {
+        window.requestAnimationFrame(() => {
+          var t, i;
+          (i = (t = this.panel) == null ? void 0 : t.querySelector(H)) == null || i.focus();
+        });
         return;
       }
       this.launcher.focus();
@@ -1310,8 +1342,8 @@ class ae {
           n.checked = !!i;
         else if (n instanceof HTMLInputElement && n.type === "range") {
           n.value = String(i);
-          const r = this.controls[`${t}Display`];
-          r instanceof HTMLSpanElement && (r.textContent = this.formatRangeValue(t, Number(i)));
+          const o = this.controls[`${t}Display`];
+          o instanceof HTMLSpanElement && (o.textContent = this.formatRangeValue(t, Number(i)));
         } else n instanceof HTMLSelectElement && (n.value = String(i));
     });
   }
@@ -1320,44 +1352,44 @@ class ae {
     const t = (i = this.shadow) == null ? void 0 : i.querySelector(".a11y-issues");
     if (t) {
       if (t.innerHTML = "", e.issues.length === 0) {
-        const n = l("li", { class: "a11y-issue" });
+        const n = d("li", { class: "a11y-issue" });
         n.textContent = "No issues detected by the lightweight scanner.", t.appendChild(n);
         return;
       }
       e.issues.slice(0, 10).forEach((n) => {
-        const r = l("li", { class: "a11y-issue" }), o = l("strong");
-        o.textContent = n.message;
-        const s = l("div");
-        s.textContent = n.selector;
-        const c = l("div");
-        c.textContent = n.suggestion, r.append(o, s, c), t.appendChild(r);
+        const o = d("li", { class: "a11y-issue" }), s = d("strong");
+        s.textContent = n.message;
+        const r = d("div");
+        r.textContent = n.selector;
+        const c = d("div");
+        c.textContent = n.suggestion, o.append(s, r, c), t.appendChild(o);
       });
     }
   }
   rowCopy(e, t) {
-    const i = l("div", { class: "a11y-copy" }), n = l("div", { class: "a11y-label" });
+    const i = d("div", { class: "a11y-copy" }), n = d("div", { class: "a11y-label" });
     n.textContent = e;
-    const r = l("div", { class: "a11y-hint" });
-    return r.textContent = t, i.append(n, r), i;
+    const o = d("div", { class: "a11y-hint" });
+    return o.textContent = t, i.append(n, o), i;
   }
   createActionButton(e, t, i, n = !1) {
-    const r = l("button", {
+    const o = d("button", {
       class: n ? "a11y-button a11y-button-primary" : "a11y-button",
       type: "button",
       "aria-label": t
     });
-    return r.textContent = e, r.addEventListener("click", i), r;
+    return o.textContent = e, o.addEventListener("click", i), o;
   }
   createLauncherIcon() {
-    const e = l("span", { class: "a11y-fab-icon", "aria-hidden": "true" });
+    const e = d("span", { class: "a11y-fab-icon", "aria-hidden": "true" });
     return e.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 1 0 9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 7.2v4.8l3.6 2.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity="0.55"/></svg>', e;
   }
   createLauncherLabel() {
-    const e = l("span", { class: "a11y-fab-label" });
+    const e = d("span", { class: "a11y-fab-label" });
     return e.textContent = "Accessibility", e;
   }
   createCloseIcon() {
-    const e = l("span", { class: "a11y-close-icon", "aria-hidden": "true" });
+    const e = d("span", { class: "a11y-close-icon", "aria-hidden": "true" });
     return e.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>', e;
   }
   getRangeHint(e) {
@@ -1378,14 +1410,17 @@ class ae {
       (i) => !i.hasAttribute("disabled")
     );
   }
+  updateViewportMode() {
+    !this.widgetRoot || !this.panel || (this.isMobile = window.innerWidth <= 640, this.widgetRoot.classList.toggle("a11y-widget--mobile", this.isMobile), this.panel.classList.toggle("a11y-panel--mobile", this.isMobile));
+  }
   destroy() {
     var e;
-    document.removeEventListener("click", this.handleDocumentClick, !0), (e = this.host) == null || e.remove(), this.controls = {}, this.host = void 0, this.shadow = void 0, this.panel = void 0, this.launcher = void 0, this.liveRegion = void 0;
+    document.removeEventListener("click", this.handleDocumentClick, !0), window.removeEventListener("resize", this.handleViewportChange), window.removeEventListener("orientationchange", this.handleViewportChange), (e = this.host) == null || e.remove(), this.controls = {}, this.host = void 0, this.shadow = void 0, this.widgetRoot = void 0, this.panel = void 0, this.launcher = void 0, this.liveRegion = void 0;
   }
 }
 class ne {
   constructor() {
-    d(this, "listeners", /* @__PURE__ */ new Map());
+    l(this, "listeners", /* @__PURE__ */ new Map());
   }
   on(e, t) {
     var i;
@@ -1413,25 +1448,25 @@ function I(a) {
     }
   };
 }
-class re {
+class oe {
   constructor() {
-    d(this, "initialized", !1);
-    d(this, "config");
-    d(this, "store");
-    d(this, "widget");
-    d(this, "features");
-    d(this, "remediation");
-    d(this, "observer");
-    d(this, "scanner");
-    d(this, "scanResults", { scannedAt: 0, issues: [] });
-    d(this, "emitter", new ne());
-    d(this, "logger", I(!1));
-    d(this, "panelOpen", !1);
-    d(this, "on", this.emitter.on.bind(this.emitter));
-    d(this, "off", this.emitter.off.bind(this.emitter));
+    l(this, "initialized", !1);
+    l(this, "config");
+    l(this, "store");
+    l(this, "widget");
+    l(this, "features");
+    l(this, "remediation");
+    l(this, "observer");
+    l(this, "scanner");
+    l(this, "scanResults", { scannedAt: 0, issues: [] });
+    l(this, "emitter", new ne());
+    l(this, "logger", I(!1));
+    l(this, "panelOpen", !1);
+    l(this, "on", this.emitter.on.bind(this.emitter));
+    l(this, "off", this.emitter.off.bind(this.emitter));
   }
   async init(e) {
-    return this.initialized ? this : (this.config = await te(e), this.logger = I(this.config.debug), ee(this.config) ? (this.store = new U(this.config.storageKey), this.features = new Y(), this.features.init(), this.features.apply(this.store.getAll()), this.remediation = new $(), this.config.features.remediation && this.remediation.apply(this.config), this.scanner = new B(), this.config.features.launcher && (this.widget = new ae(this.config, {
+    return this.initialized ? this : (this.config = await te(e), this.logger = I(this.config.debug), ee(this.config) ? (this.store = new K(this.config.storageKey), this.features = new Y(), this.features.init(), this.features.apply(this.store.getAll()), this.remediation = new $(), this.config.features.remediation && this.remediation.apply(this.config), this.scanner = new B(), this.config.features.launcher && (this.widget = new ae(this.config, {
       onTogglePanel: () => this.togglePanel(),
       onClosePanel: () => this.closePanel(),
       onSetPreference: (t, i) => this.setPreference(t, i),
@@ -1460,11 +1495,11 @@ class re {
     this.openPanel();
   }
   setPreference(e, t) {
-    var n, r, o;
+    var n, o, s;
     if (!this.store)
       return;
     const i = this.store.set(e, t);
-    (n = this.features) == null || n.apply(i), (r = this.widget) == null || r.sync(i), (o = this.widget) == null || o.announce(`${this.humanizeKey(e)} updated.`), this.emitter.emit("preferenceChanged", { key: e, value: t }), this.emitAnalytics("preference_changed", { key: e, value: t });
+    (n = this.features) == null || n.apply(i), (o = this.widget) == null || o.sync(i), (s = this.widget) == null || s.announce(`${this.humanizeKey(e)} updated.`), this.emitter.emit("preferenceChanged", { key: e, value: t }), this.emitAnalytics("preference_changed", { key: e, value: t });
   }
   getPreference(e) {
     var t;
@@ -1475,9 +1510,9 @@ class re {
     return (t = (e = this.store) == null ? void 0 : e.getAll()) != null ? t : { ...p };
   }
   resetPreferences() {
-    var t, i, n, r, o;
+    var t, i, n, o, s;
     const e = (i = (t = this.store) == null ? void 0 : t.reset()) != null ? i : A();
-    (n = this.features) == null || n.apply(e), (r = this.widget) == null || r.sync(e), (o = this.widget) == null || o.announce("Preferences reset."), this.emitAnalytics("preferences_reset", void 0);
+    (n = this.features) == null || n.apply(e), (o = this.widget) == null || o.sync(e), (s = this.widget) == null || s.announce("Preferences reset."), this.emitAnalytics("preferences_reset", void 0);
   }
   scanPage() {
     var t, i, n;
@@ -1495,35 +1530,35 @@ class re {
     !this.initialized || !this.config || (this.config.features.remediation && ((e = this.remediation) == null || e.apply(this.config)), (t = this.features) == null || t.apply(this.getPreferences()), this.config.features.diagnostics && this.scanPage());
   }
   applyPreset(e) {
-    var n, r, o, s;
+    var n, o, s, r;
     if (!this.store)
       return;
     const t = (n = z[e]) != null ? n : {}, i = A({ ...this.store.getAll(), ...t });
     Object.keys(i).forEach((c) => {
       var h;
       (h = this.store) == null || h.set(c, i[c]);
-    }), (r = this.features) == null || r.apply(i), (o = this.widget) == null || o.sync(i), (s = this.widget) == null || s.announce(`${e} preset applied.`);
+    }), (o = this.features) == null || o.apply(i), (s = this.widget) == null || s.sync(i), (r = this.widget) == null || r.announce(`${e} preset applied.`);
   }
   humanizeKey(e) {
     return e.replace(/([A-Z])/g, " $1").toLowerCase();
   }
   emitAnalytics(e, t) {
-    var i, n, r;
-    (i = this.config) != null && i.analytics.enabled && ((r = (n = this.config.analytics).onEvent) == null || r.call(n, {
+    var i, n, o;
+    (i = this.config) != null && i.analytics.enabled && ((o = (n = this.config.analytics).onEvent) == null || o.call(n, {
       type: e,
       timestamp: Date.now(),
       detail: t
     }));
   }
 }
-const g = new re();
+const g = new oe();
 async function G(a) {
   return g.init(a);
 }
-function oe() {
+function se() {
   g.destroy();
 }
-function se() {
+function re() {
   g.openPanel();
 }
 function le() {
@@ -1556,10 +1591,10 @@ function me(a, e) {
 function ye(a, e) {
   g.off(a, e);
 }
-const be = E, xe = {
+const be = E, we = {
   init: G,
-  destroy: oe,
-  openPanel: se,
+  destroy: se,
+  openPanel: re,
   closePanel: le,
   togglePanel: de,
   setPreference: ce,
@@ -1572,21 +1607,21 @@ const be = E, xe = {
   off: ye,
   version: be
 };
-k() && (window.OurA11y = xe, T(() => {
+k() && (window.OurA11y = we, T(() => {
   var a;
   ((a = window.OUR_A11Y_CONFIG) == null ? void 0 : a.autoInit) !== !1 && G(window.OUR_A11Y_CONFIG);
 }));
 export {
   le as closePanel,
-  xe as default,
-  oe as destroy,
+  we as default,
+  se as destroy,
   he as getPreference,
   ue as getPreferences,
   fe as getScanResults,
   G as init,
   ye as off,
   me as on,
-  se as openPanel,
+  re as openPanel,
   ge as resetPreferences,
   pe as scanPage,
   ce as setPreference,
